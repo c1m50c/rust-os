@@ -9,3 +9,7 @@ panic = "abort"
 
 [profile.dev]
 panic = "abort"
+
+[features]
+# Feature that should be passed through while compiling bare metal targets
+bare-metal = [  ]
