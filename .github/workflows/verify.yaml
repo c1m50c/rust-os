@@ -1,0 +1,52 @@
+name: Verify
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  verify:
+    strategy:
+      matrix:
+        include:
+          - identifier: Verify - Windows
+            os: windows-latest
+            toolchain: stable
+  
+          - identifier: Verify - Linux
+            os: ubuntu-latest
+            toolchain: stable
+
+          - identifier: Verify - MacOS
+            os: macos-latest
+            toolchain: stable
+
+    name: ${{ matrix.identifier }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+
+      - name: Configure Dependency Caching
+        uses: Swatinem/rust-cache@v2
+
+      - name: Verify - Clippy
+        run: cargo clippy --no-deps -- -Dwarnings
+
+      - name: Verify - Runner Operating System
+        run: cargo build
+
+      - name: Verify - Bare Metal Target
+        run: |
+          rustup target add thumbv7em-none-eabihf
+          cargo build --target thumbv7em-none-eabihf
