@@ -1,0 +1,11 @@
+[package]
+name = "rust-os"
+authors = ["c1m50c <https://github.com/c1m50c>"]
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
