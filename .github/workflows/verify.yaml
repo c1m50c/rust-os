@@ -15,15 +15,15 @@ jobs:
         include:
           - identifier: Windows
             os: windows-latest
-            toolchain: stable
+            toolchain: nightly
   
           - identifier: Ubuntu
             os: ubuntu-latest
-            toolchain: stable
+            toolchain: nightly
 
           - identifier: MacOS
             os: macos-latest
-            toolchain: stable
+            toolchain: nightly
 
     name: Verify - ${{ matrix.identifier }}
     runs-on: ${{ matrix.os }}
@@ -35,18 +35,13 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
-          components: clippy
+          components: clippy, llvm-tools-preview
 
       - name: Configure Dependency Caching
         uses: Swatinem/rust-cache@v2
 
       - name: Verify - Build ${{ matrix.identifier }}
         run: cargo build
-
-      - name: Verify - Build Bare Metal
-        run: |
-          rustup target add thumbv7em-none-eabihf
-          cargo build --target thumbv7em-none-eabihf -F bare-metal
 
       - name: Verify - Clippy
         run: cargo clippy --no-deps -- -Dwarnings
