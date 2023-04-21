@@ -8,6 +8,13 @@ publish = false
 [workspace]
 members = [ "kernel" ]
 
+[profile.release]
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
+
+
 [build-dependencies]
 rust-os-kernel = { path = "kernel", artifact = "bin", target = "x86_64-unknown-none" }
 bootloader = "0.11.3"

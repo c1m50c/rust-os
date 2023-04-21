@@ -3,8 +3,13 @@
 #![no_std]
 
 
+use bootloader_api::info::Optional;
 use bootloader_api::BootInfo;
 use core::panic::PanicInfo;
+use core::fmt::Write;
+
+pub mod writer;
+pub mod math;
 
 
 #[panic_handler]
@@ -13,15 +18,16 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 
-fn main(_: &'static mut BootInfo) -> ! {
-    let vga_buffer = 0xb8000 as *mut u8;
-    let text = b"Hello, World!".iter();
+fn main(info: &'static mut BootInfo) -> ! {
+    if let Optional::Some(buffer) = &mut info.framebuffer {
+        let frame_buffer_info = buffer.info();
+        let frame_buffer = buffer.buffer_mut();
 
-    for (idx, byte) in text.enumerate() {
-        unsafe {
-            *vga_buffer.offset(idx as isize * 2) = *byte;
-            *vga_buffer.offset(idx as isize * 2 + 1) = 0xb;
-        }
+        let mut font_writer = writer::FontWriter::new(frame_buffer_info, frame_buffer);
+        font_writer.clear();
+
+        let _ = write!(&mut font_writer, "Hello, World!\n");
+        let _ = write!(&mut font_writer, "https://github.com/c1m50c/rust-os");
     }
 
     loop {  }
