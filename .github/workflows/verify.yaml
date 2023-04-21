@@ -11,6 +11,7 @@ on:
 jobs:
   verify:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - identifier: Windows
@@ -34,6 +35,7 @@ jobs:
           components: clippy, llvm-tools-preview
           target: x86_64-unknown-none
           toolchain: nightly
+          override: true
 
       - name: Configure Dependency Caching
         uses: Swatinem/rust-cache@v2
