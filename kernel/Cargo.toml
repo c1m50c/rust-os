@@ -1,0 +1,15 @@
+[package]
+name = "rust-os-kernel"
+authors = ["c1m50c <https://github.com/c1m50c>"]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[profile.release]
+panic = "abort"
+
+[profile.dev]
+panic = "abort"
+
+[dependencies]
+bootloader_api = "0.11.3"
