@@ -3,6 +3,10 @@ name = "rust-os"
 authors = ["c1m50c <https://github.com/c1m50c>"]
 version = "0.1.0"
 edition = "2021"
+publish = false
+
+[workspace]
+members = [ "kernel" ]
 
 [profile.release]
 panic = "abort"
@@ -10,6 +14,11 @@ panic = "abort"
 [profile.dev]
 panic = "abort"
 
-[features]
-# Feature that should be passed through while compiling bare metal targets
-bare-metal = [  ]
+
+[build-dependencies]
+rust-os-kernel = { path = "kernel", artifact = "bin", target = "x86_64-unknown-none" }
+bootloader = "0.11.3"
+
+[dependencies]
+clap = { version = "4.2.4", features = ["derive"] }
+ovmf-prebuilt = "0.1.0-alpha.1"
