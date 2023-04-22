@@ -86,8 +86,8 @@ impl<'a> FontWriter<'a> {
         let offset = position.y * self.frame_buffer_info.stride + position.x;
 
         let pixel_color = match self.frame_buffer_info.pixel_format {
-            PixelFormat::Rgb => [ intensity, intensity, intensity / 2, 0 ],
-            PixelFormat::Bgr => [ intensity / 2, intensity, intensity, 0 ],
+            PixelFormat::Rgb => [ intensity, intensity, intensity, 0 ],
+            PixelFormat::Bgr => [ intensity, intensity, intensity, 0 ],
             PixelFormat::U8 => [ 0, 0, 0, 0 ],
             _ => core::unreachable!(),
         };
@@ -98,6 +98,7 @@ impl<'a> FontWriter<'a> {
             .copy_from_slice(&pixel_color[..self.frame_buffer_info.bytes_per_pixel]);
 
         let _ = unsafe {
+            // SAFETY: `self.frame_buffer[..]` is guranteed to meet the safety contract of `read_volatile`
             core::ptr::read_volatile(&self.frame_buffer[byte_offset])
         };
     }
