@@ -28,7 +28,7 @@ $ brew install rust
 
 Alongside the normal compilation toolkit you'll need to add the [`nightly`] channel to your [`rustup`] installation, you can do so by running the following commands:
 
-```
+```bash
 $ rustup update
 > ...
 
@@ -51,9 +51,15 @@ Lastly, you'll need to install [QEMU] to emulate our operating system. To do so,
 
 ## Running
 
-After you've installed all of the requirements, running the operating system should be as simple as executing the following commands:
+After you've installed all of the requirements, running the operating system should be as simple as executing any of the following commands:
 
 ```bash
-$ cargo run --release -- <uefi||bios>
-> ... # QEMU Window should pop up
+$ cargo run --release -- help
+> ... # Help menu will pop up displaying a valid list of commands
+
+$ cargo run --release -- uefi
+> ... # QEMU Window should pop up launching our kernel's UEFI image
+
+$ cargo run --release -- bios
+> ... # QEMU Window should pop up launching our kernel's BIOS image
 ```
