@@ -1,8 +1,7 @@
 use noto_sans_mono_bitmap::{RasterizedChar, RasterHeight, FontWeight, get_raster_width, get_raster};
 use bootloader_api::info::{FrameBufferInfo, PixelFormat};
+use fixed_vectors::{Vector2, Vector3};
 use core::fmt;
-
-use crate::math::Vector2;
 
 
 pub const CHARACTER_HEIGHT: RasterHeight = RasterHeight::Size16;
@@ -15,14 +14,14 @@ pub const LINE_SPACING: usize = 2;
 pub const PADDING: usize = 2;
 
 
-pub struct FontWriter<'a> {
-    frame_buffer_info: FrameBufferInfo,
+pub struct FrameBufferWriter<'a> {
+    pub frame_buffer_info: FrameBufferInfo,
     frame_buffer: &'a mut [u8],
     position: Vector2<usize>,
 }
 
 
-impl<'a> FontWriter<'a> {
+impl<'a> FrameBufferWriter<'a> {
     pub fn new(frame_buffer_info: FrameBufferInfo, frame_buffer: &'a mut [u8]) -> Self {
         Self {
             position: Vector2 { x: 0, y: 0 },
@@ -62,12 +61,12 @@ impl<'a> FontWriter<'a> {
 
                 let character = get_raster(character, FontWeight::Regular, CHARACTER_HEIGHT)
                     .expect("");
-                self.write_rasterized(character);
+                self.write_rasterized_character(character);
             }
         }
     }
 
-    fn write_rasterized(&mut self, character: RasterizedChar) {
+    fn write_rasterized_character(&mut self, character: RasterizedChar) {
         for (i, row) in character.raster().iter().enumerate() {
             for (j, byte) in row.iter().enumerate() {
                 let position = Vector2 {
@@ -75,20 +74,19 @@ impl<'a> FontWriter<'a> {
                     y: self.position.y + i,
                 };
 
-                self.write_pixel(position, *byte);
+                self.write_pixel(position, Vector3::new(*byte, 0, 0));
             }
         }
 
         self.position.x += character.width() + LETTER_SPACING;
     }
 
-    fn write_pixel(&mut self, position: Vector2<usize>, intensity: u8) {
+    pub fn write_pixel(&mut self, position: Vector2<usize>, color: Vector3<u8>) {
         let offset = position.y * self.frame_buffer_info.stride + position.x;
 
         let pixel_color = match self.frame_buffer_info.pixel_format {
-            PixelFormat::Rgb => [ intensity, intensity, intensity / 2, 0 ],
-            PixelFormat::Bgr => [ intensity / 2, intensity, intensity, 0 ],
-            PixelFormat::U8 => [ 0, 0, 0, 0 ],
+            PixelFormat::Rgb | PixelFormat::U8 => [ color.x, color.y, color.z, 0 ],
+            PixelFormat::Bgr => [ color.z, color.y, color.x, 0 ], // Upside Down
             _ => core::unreachable!(),
         };
 
@@ -98,13 +96,14 @@ impl<'a> FontWriter<'a> {
             .copy_from_slice(&pixel_color[..self.frame_buffer_info.bytes_per_pixel]);
 
         let _ = unsafe {
+            // SAFETY: `self.frame_buffer[..]` is guranteed to meet the safety contract of `read_volatile`
             core::ptr::read_volatile(&self.frame_buffer[byte_offset])
         };
     }
 }
 
 
-impl<'a> fmt::Write for FontWriter<'a> {
+impl<'a> fmt::Write for FrameBufferWriter<'a> {
     fn write_str(&mut self, string: &str) -> fmt::Result {
         for character in string.chars() {
             self.write_character(character);
