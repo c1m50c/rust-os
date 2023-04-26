@@ -100,9 +100,8 @@ impl Ray {
         let t = self.hit_sphere(Vector3::new(0.0, 0.0, -1.0), 0.5);
 
         if t > 0.0 {
-            let n = unit_vector(self.at(t) - Vector3::new(0.0, 0.0, -1.0))
-                .map(|f| f + 1.0);
-            return n * 0.5;
+            let n = unit_vector(self.at(t) - Vector3::new(0.0, 0.0, -1.0));
+            return (n + 1.0) * 0.5;
         }
 
         let direction = unit_vector(self.direction.clone());
