@@ -1,7 +1,7 @@
 use core::fmt::{self, Write};
 use core::ops::DerefMut;
 
-use crate::FONT_WRITER;
+use crate::FRAME_BUFFER_WRITER;
 
 
 #[macro_export]
@@ -28,7 +28,7 @@ macro_rules! println {
 
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
-    let mut lock = FONT_WRITER.lock();
+    let mut lock = FRAME_BUFFER_WRITER.lock();
 
     if let Some(writer) = lock.deref_mut() {
         writer.write_fmt(args)
