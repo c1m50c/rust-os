@@ -761,6 +761,7 @@ dependencies = [
  "bootloader_api",
  "fixed-vectors",
  "lazy_static",
+ "libm",
  "noto-sans-mono-bitmap",
  "spin 0.9.8",
 ]

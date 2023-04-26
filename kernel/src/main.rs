@@ -5,14 +5,15 @@
 use bootloader_api::info::Optional;
 use bootloader_api::BootInfo;
 
-use fixed_vectors::{Vector3, Vector2};
 use lazy_static::lazy_static;
+use fixed_vectors::Vector2;
 use spin::Mutex;
 
 use core::ops::DerefMut;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 
+pub mod raytracer;
 pub mod writer;
 pub mod macros;
 
@@ -55,28 +56,8 @@ fn main(info: &'static mut BootInfo) -> ! {
         writer.frame_buffer_info.width, writer.frame_buffer_info.height
     );
 
-    // Easiest way or us to call `writer.write_pixel` from top to down while keeping proper color order.
-    let mut y_decrement = resolution.y - 1;
-
-    for y in 0..resolution.y {
-        for x in 0..resolution.x {
-            let color = Vector3::new(
-                x as f64 / (resolution.x - 1) as f64,
-                y_decrement as f64 / (resolution.y - 1) as f64,
-                0.25,
-            );
-
-            let color = color.map(|f| (255.999 * f) as u8);
-            let position = Vector2::new(x, y);
-
-            writer.write_pixel(
-                position,
-                color
-            );
-        }
-
-        y_decrement -= 1;
-    }
+    let mut raytracer = raytracer::Raytracer::new(resolution, writer);
+    raytracer.run();
 
     loop {  }
 }
