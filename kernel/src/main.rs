@@ -2,6 +2,9 @@
 #![no_main]
 #![no_std]
 
+#![test_runner(tests::_empty_test_runner)]
+#![feature(custom_test_frameworks)]
+
 use bootloader_api::info::Optional;
 use bootloader_api::BootInfo;
 
@@ -10,12 +13,13 @@ use fixed_vectors::Vector2;
 use spin::Mutex;
 
 use core::ops::DerefMut;
-#[cfg(not(test))]
-use core::panic::PanicInfo;
 
 pub mod raytracer;
 pub mod writer;
 pub mod macros;
+
+#[cfg(test)]
+mod tests;
 
 
 lazy_static!{
@@ -28,7 +32,16 @@ lazy_static!{
 
 #[panic_handler]
 #[cfg(not(test))]
-fn panic(info: &PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    println!("PANIC: {}", info);
+
+    loop {  }
+}
+
+
+#[panic_handler]
+#[cfg(test)]
+fn panic(info: &core::panic::PanicInfo) -> ! {
     println!("PANIC: {}", info);
 
     loop {  }
@@ -47,6 +60,10 @@ fn main(info: &'static mut BootInfo) -> ! {
         writer.clear();
 
         *lock = Some(writer);
+    }
+
+    #[cfg(test)] {
+        tests::_testing_main(); loop {  }
     }
 
     let mut lock = FRAME_BUFFER_WRITER.lock();

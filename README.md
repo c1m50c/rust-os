@@ -63,3 +63,15 @@ $ cargo run --release -- uefi
 $ cargo run --release -- bios
 > ... # QEMU Window should pop up launching our kernel's BIOS image
 ```
+
+## Testing
+
+Due to the way this currently setup, testing is a bit funky. You can run the following commands to launch the kernel in test mode:
+
+```bash
+# This can be set to any value, as long as its present the kernel will be compiled in test mode.
+$ export KERNEL_TEST_MODE="true"
+
+$ cargo run --release -- <uefi||bios>
+> ...
+```
