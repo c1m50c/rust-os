@@ -10,6 +10,7 @@ use bootloader_api::BootInfo;
 
 use lazy_static::lazy_static;
 use fixed_vectors::Vector2;
+use uart_16550::SerialPort;
 use spin::Mutex;
 
 use core::ops::DerefMut;
@@ -17,6 +18,7 @@ use core::ops::DerefMut;
 pub mod raytracer;
 pub mod writer;
 pub mod macros;
+pub mod qemu;
 
 #[cfg(test)]
 mod tests;
@@ -27,6 +29,13 @@ lazy_static!{
         // The `FRAME_BUFFER_WRITER` needs to be initialized in `main` with the `info.framebuffer`
         None
     );
+
+    pub static ref SERIAL_ONE: Mutex<SerialPort> = {
+        let mut serial_port = unsafe { SerialPort::new(0x3F8) };
+        serial_port.init();
+
+        Mutex::new(serial_port)
+    };
 }
 
 
@@ -42,7 +51,10 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 #[panic_handler]
 #[cfg(test)]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    println!("PANIC: {}", info);
+    serial_println!("[failed]\n");
+
+    serial_println!("Error: {}\n", info);
+    qemu::exit_qemu(qemu::QemuExitCode::Failed);
 
     loop {  }
 }

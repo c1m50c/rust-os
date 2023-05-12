@@ -72,6 +72,6 @@ Due to the way this currently setup, testing is a bit funky. You can run the fol
 # This can be set to any value, as long as its present the kernel will be compiled in test mode.
 $ export KERNEL_TEST_MODE="true"
 
-$ cargo run --release -- <uefi||bios>
+$ cargo run --release -F testing -- <uefi||bios>
 > ...
 ```

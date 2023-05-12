@@ -1,3 +1,6 @@
+#![feature(custom_test_frameworks)]
+#![test_runner(test_runner)]
+
 use std::io::Error;
 use std::process;
 
@@ -39,8 +42,17 @@ fn main() -> Result<(), Error> {
         },
     }
 
+    #[cfg(feature = "testing")] {
+        command.arg("-device")
+            .arg("isa-debug-exit,iobase=0xf4,iosize=0x04");
+        command.arg("-serial")
+            .arg("stdio");
+        command.arg("-display")
+            .arg("none");
+    }
+
     let mut child_process = command.spawn()?;
     child_process.wait()?;
 
-     Ok(())
+    Ok(())
 }
