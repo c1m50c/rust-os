@@ -3,6 +3,8 @@ use core::ops::DerefMut;
 
 use crate::FRAME_BUFFER_WRITER;
 
+pub mod serial;
+
 
 #[macro_export]
 macro_rules! print {
