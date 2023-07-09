@@ -13,7 +13,7 @@ rust-os-kernel = { path = "kernel", artifact = "bin", target = "x86_64-unknown-n
 bootloader = "0.11.3"
 
 [dependencies]
-clap = { version = "4.2.4", features = ["derive"] }
+clap = { version = "4.3.5", features = ["derive"] }
 ovmf-prebuilt = "0.1.0-alpha.1"
 
 [features]
